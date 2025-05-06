@@ -4,9 +4,9 @@ import { getDataAi, handleAi } from "../controllers/aiController.js";
 import passport from "passport";
 import setReqUserFromJwt from "../middlewares/setReqUserFromJwt.js";
 
-const aiRoutes = express.Router();
+const aiRouter = express.Router();
 
-aiRoutes.get(
+aiRouter.get(
   "/",
   passport.authenticate("jwt", { session: false }),
   setReqUserFromJwt,
@@ -14,7 +14,7 @@ aiRoutes.get(
   getDataAi
 );
 
-aiRoutes.post(
+aiRouter.post(
   "/",
   passport.authenticate("jwt", { session: false }),
   setReqUserFromJwt,
@@ -22,4 +22,4 @@ aiRoutes.post(
   handleAi
 );
 
-export default aiRoutes;
+export default aiRouter;

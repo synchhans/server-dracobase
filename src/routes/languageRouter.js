@@ -10,9 +10,9 @@ import isAdmin from "../middlewares/isAdmin.js";
 import passport from "passport";
 import setReqUserFromJwt from "../middlewares/setReqUserFromJwt.js";
 
-const languageRoutes = express.Router();
+const languageRouter = express.Router();
 
-languageRoutes.post(
+languageRouter.post(
   "/",
   passport.authenticate("jwt", { session: false }),
   setReqUserFromJwt,
@@ -21,7 +21,7 @@ languageRoutes.post(
   addLanguageController
 );
 
-languageRoutes.get(
+languageRouter.get(
   "/",
   passport.authenticate("jwt", { session: false }),
   setReqUserFromJwt,
@@ -29,7 +29,7 @@ languageRoutes.get(
   getAllLanguagesController
 );
 
-languageRoutes.put(
+languageRouter.put(
   "/:name",
   passport.authenticate("jwt", { session: false }),
   setReqUserFromJwt,
@@ -38,7 +38,7 @@ languageRoutes.put(
   updateLanguageController
 );
 
-languageRoutes.delete(
+languageRouter.delete(
   "/:languageId",
   passport.authenticate("jwt", { session: false }),
   setReqUserFromJwt,
@@ -47,4 +47,4 @@ languageRoutes.delete(
   deleteLanguageController
 );
 
-export default languageRoutes;
+export default languageRouter;
