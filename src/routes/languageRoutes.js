@@ -7,15 +7,32 @@ import {
 } from "../controllers/languageController.js";
 import isProfileCompleted from "../middlewares/isProfileCompleted.js";
 import isAdmin from "../middlewares/isAdmin.js";
+import passport from "passport";
+import setReqUserFromJwt from "../middlewares/setReqUserFromJwt.js";
 
 const languageRoutes = express.Router();
 
-languageRoutes.post("/", isProfileCompleted, isAdmin, addLanguageController);
+languageRoutes.post(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  setReqUserFromJwt,
+  isProfileCompleted,
+  isAdmin,
+  addLanguageController
+);
 
-languageRoutes.get("/", isProfileCompleted, getAllLanguagesController);
+languageRoutes.get(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  setReqUserFromJwt,
+  isProfileCompleted,
+  getAllLanguagesController
+);
 
 languageRoutes.put(
   "/:name",
+  passport.authenticate("jwt", { session: false }),
+  setReqUserFromJwt,
   isProfileCompleted,
   isAdmin,
   updateLanguageController
@@ -23,6 +40,8 @@ languageRoutes.put(
 
 languageRoutes.delete(
   "/:languageId",
+  passport.authenticate("jwt", { session: false }),
+  setReqUserFromJwt,
   isProfileCompleted,
   isAdmin,
   deleteLanguageController

@@ -3,20 +3,25 @@ import {
   updateUserProfile,
   updateUserStatus,
 } from "../services/authService.js";
+import jwt from "jsonwebtoken";
 
 export const getMe = (req, res) => {
-  if (req.isAuthenticated()) {
-    return res.json({ user: req.user });
-  } else {
-    return res.json({ user: null });
+  try {
+    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    res.json({ message: "User fetched successfully", user: req.user, token });
+  } catch (error) {
+    console.error("Error generating JWT token:", error.message);
+    res.status(500).json({ message: "Internal Server Error", user: null });
   }
 };
 
 export const updateProfile = async (req, res) => {
   try {
-    const { firstName, lastName, role, plan } = req.body;
+    const { firstName, lastName, role, plan, type } = req.body;
 
-    if (!firstName || !lastName || !role || !plan) {
+    if (!firstName || !lastName || !role || !plan || !type) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -29,16 +34,23 @@ export const updateProfile = async (req, res) => {
       plan,
     });
 
-    await Notification.create({
-      userId: req.user._id,
-      title: "Selamat Datang di Platform Pemrograman!",
-      message:
-        "Yuk eksplor fitur-fitur menarik di sini. Jika ada kendala atau ingin request fitur, langsung hubungi developer ya! Happy coding! 💻✨",
+    if (type === "new") {
+      await Notification.create({
+        userId: req.user._id,
+        title: "Selamat Datang di Platform Pemrograman!",
+        message:
+          "Yuk eksplor fitur-fitur menarik di sini. Jika ada kendala atau ingin request fitur, langsung hubungi developer ya! Happy coding! 💻✨",
+      });
+    }
+
+    const token = jwt.sign({ id: updatedUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
     });
 
     res.status(200).json({
       message: "Profile updated successfully",
-      user: updatedUser,
+      user: req.user,
+      token,
     });
   } catch (error) {
     console.error("Error updating user:", error);
@@ -48,30 +60,11 @@ export const updateProfile = async (req, res) => {
 
 export const logout = (req, res) => {
   try {
-    if (req.isAuthenticated()) {
-      updateUserStatus(req.user._id, "nonactive").catch((err) =>
-        console.error("Gagal update status saat logout:", err)
-      );
-    }
+    updateUserStatus(req.user._id, "nonactive").catch((err) =>
+      console.error("Gagal update status saat logout:", err)
+    );
 
-    req.logout((err) => {
-      if (err) {
-        console.error("Error during logout:", err);
-        return res.status(500).json({ message: "Logout failed" });
-      }
-
-      req.session.destroy((err) => {
-        if (err) {
-          console.error("Error destroying session:", err);
-          return res
-            .status(500)
-            .json({ message: "Session destruction failed" });
-        }
-
-        res.clearCookie("connect.sid");
-        res.status(200).json({ message: "Logout successful" });
-      });
-    });
+    res.json({ message: "Logged out successfully" });
   } catch (error) {
     console.error("Error during logout:", error);
     res.status(500).json({ message: "Internal server error" });

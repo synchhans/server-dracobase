@@ -6,6 +6,7 @@ import isProfileCompleted from "../middlewares/isProfileCompleted.js";
 import { fetchDataUser } from "../controllers/userController.js";
 import dotenv from "dotenv";
 import { updateUserStatus } from "../services/authService.js";
+import setReqUserFromJwt from "../middlewares/setReqUserFromJwt.js";
 
 dotenv.config();
 
@@ -22,24 +23,27 @@ authRouter.get(
   authLimiter,
   passport.authenticate("google", {
     failureRedirect: `${process.env.FRONTEND_URL}/login`,
+    session: false,
   }),
   async (req, res) => {
     try {
-      await updateUserStatus(req.user._id, "active");
+      await updateUserStatus(req.user.user._id, "active");
 
-      const { isProfileComplete } = req.user;
+      const { isProfileComplete } = req.user.user.isProfileComplete;
+
+      console.log("user", req.user.user);
 
       if (!isProfileComplete) {
         res.send(`
           <script>
-            window.opener.postMessage('AUTH_SUCCESS', '${process.env.FRONTEND_URL}/login');
+            window.opener.postMessage({ type: 'AUTH_SUCCESS', token: '${req.user.token}' }, '${process.env.FRONTEND_URL}');
             window.close();
           </script>
         `);
       } else {
         res.send(`
           <script>
-            window.opener.postMessage('REDIRECT_DASHBOARD', '${process.env.FRONTEND_URL}/dashboard');
+            window.opener.postMessage({ type: 'REDIRECT_DASHBOARD', token: '${req.user.token}' }, '${process.env.FRONTEND_URL}');
             window.close();
           </script>
         `);
@@ -67,24 +71,25 @@ authRouter.get(
   authLimiter,
   passport.authenticate("github", {
     failureRedirect: `${process.env.FRONTEND_URL}/login`,
+    session: false,
   }),
   async (req, res) => {
     try {
-      await updateUserStatus(req.user._id, "active");
+      await updateUserStatus(req.user.user._id, "active");
 
-      const { isProfileComplete } = req.user;
+      const { isProfileComplete } = req.user.user;
 
       if (!isProfileComplete) {
         res.send(`
           <script>
-            window.opener.postMessage('AUTH_SUCCESS', '${process.env.FRONTEND_URL}/login');
+            window.opener.postMessage({ type: 'AUTH_SUCCESS', token: '${req.user.token}' }, '${process.env.FRONTEND_URL}');
             window.close();
           </script>
         `);
       } else {
         res.send(`
           <script>
-            window.opener.postMessage('REDIRECT_DASHBOARD', '${process.env.FRONTEND_URL}/dashboard');
+            window.opener.postMessage({ type: 'REDIRECT_DASHBOARD', token: '${req.user.token}' }, '${process.env.FRONTEND_URL}');
             window.close();
           </script>
         `);
@@ -101,9 +106,23 @@ authRouter.get(
   }
 );
 
-authRouter.get("/me", getMe);
-authRouter.get("/dashboard", isProfileCompleted, fetchDataUser);
-authRouter.post("/update", updateProfile);
-authRouter.post("/logout", logout);
+authRouter.get("/me", passport.authenticate("jwt", { session: false }), getMe);
+authRouter.get(
+  "/dashboard",
+  passport.authenticate("jwt", { session: false }),
+  setReqUserFromJwt,
+  isProfileCompleted,
+  fetchDataUser
+);
+authRouter.post(
+  "/update",
+  passport.authenticate("jwt", { session: false }),
+  updateProfile
+);
+authRouter.post(
+  "/logout",
+  passport.authenticate("jwt", { session: false }),
+  logout
+);
 
 export default authRouter;

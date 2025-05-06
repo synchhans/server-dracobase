@@ -1,19 +1,39 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as GitHubStrategy } from "passport-github2";
+import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import User from "../models/User.js";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 
 dotenv.config();
 
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: process.env.JWT_SECRET,
+};
+
+passport.use(
+  new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
+    try {
+      const user = await User.findById(jwtPayload.id);
+      if (!user) {
+        return done(null, false);
+      }
+      return done(null, user);
+    } catch (error) {
+      return done(error, false);
+    }
+  })
+);
+
 passport.serializeUser((user, done) => {
-  done(null, user.id);
+  done(null, user._id);
 });
 
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await User.findById(id);
-    console.log("Deserialized user:", user);
     if (!user) {
       return done(new Error("User not found"), null);
     }
@@ -50,7 +70,11 @@ passport.use(
           });
           await user.save();
         }
-        done(null, user);
+        const payload = { id: user._id };
+        const token = jwt.sign(payload, process.env.JWT_SECRET, {
+          expiresIn: "1h",
+        });
+        done(null, { user, token });
       } catch (error) {
         done(error, null);
       }
@@ -88,10 +112,16 @@ passport.use(
           });
           await user.save();
         }
-        done(null, user);
+        const payload = { id: user._id };
+        const token = jwt.sign(payload, process.env.JWT_SECRET, {
+          expiresIn: "1h",
+        });
+        done(null, { user, token });
       } catch (error) {
         done(error, null);
       }
     }
   )
 );
+
+export default passport;

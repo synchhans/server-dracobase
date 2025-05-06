@@ -1,41 +1,36 @@
 import express from "express";
 import {
-  deleteAccountController,
-  editAccountController,
-  getAccountController,
-} from "../controllers/accountController.js";
+  postNotification,
+  getNotificationsByUser,
+  patchMarkAsRead,
+} from "../controllers/notificationController.js";
 import isProfileCompleted from "../middlewares/isProfileCompleted.js";
 import isAdmin from "../middlewares/isAdmin.js";
 import passport from "passport";
 import setReqUserFromJwt from "../middlewares/setReqUserFromJwt.js";
 
-const accountRouter = express.Router();
+const notificationRouter = express.Router();
 
-accountRouter.get(
+notificationRouter.post(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  setReqUserFromJwt,
+  isAdmin,
+  postNotification
+);
+notificationRouter.get(
   "/",
   passport.authenticate("jwt", { session: false }),
   setReqUserFromJwt,
   isProfileCompleted,
-  isAdmin,
-  getAccountController
+  getNotificationsByUser
 );
-
-accountRouter.put(
-  "/:id",
+notificationRouter.patch(
+  "/:notificationId/read",
   passport.authenticate("jwt", { session: false }),
   setReqUserFromJwt,
   isProfileCompleted,
-  isAdmin,
-  editAccountController
+  patchMarkAsRead
 );
 
-accountRouter.delete(
-  "/:id",
-  passport.authenticate("jwt", { session: false }),
-  setReqUserFromJwt,
-  isProfileCompleted,
-  isAdmin,
-  deleteAccountController
-);
-
-export default accountRouter;
+export default notificationRouter;

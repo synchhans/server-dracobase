@@ -1,11 +1,25 @@
 import express from "express";
 import isProfileCompleted from "../middlewares/isProfileCompleted.js";
 import { getDataAi, handleAi } from "../controllers/aiController.js";
+import passport from "passport";
+import setReqUserFromJwt from "../middlewares/setReqUserFromJwt.js";
 
 const aiRoutes = express.Router();
 
-aiRoutes.get("/", isProfileCompleted, getDataAi);
+aiRoutes.get(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  setReqUserFromJwt,
+  isProfileCompleted,
+  getDataAi
+);
 
-aiRoutes.post("/", isProfileCompleted, handleAi);
+aiRoutes.post(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  setReqUserFromJwt,
+  isProfileCompleted,
+  handleAi
+);
 
 export default aiRoutes;

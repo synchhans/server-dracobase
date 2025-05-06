@@ -5,11 +5,20 @@ import {
   getMaintenanceStatus,
   toggleMaintenance,
 } from "../controllers/maintenanceController.js";
+import passport from "passport";
+import setReqUserFromJwt from "../middlewares/setReqUserFromJwt.js";
 
 const maintenanceRoutes = express.Router();
 
 maintenanceRoutes.get("/", getMaintenanceStatus);
 
-maintenanceRoutes.post("/", isProfileCompleted, isAdmin, toggleMaintenance);
+maintenanceRoutes.post(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  setReqUserFromJwt,
+  isProfileCompleted,
+  isAdmin,
+  toggleMaintenance
+);
 
 export default maintenanceRoutes;
