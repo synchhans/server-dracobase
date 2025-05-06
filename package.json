@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Backend untuk Platform Pemrograman Berbasis AI dengan fitur Feedback Otomatis dan Debugging untuk Mahasiswa.",
   "type": "module",
-  "main": "src/server.js",
+  "main": "src/app.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
   },
   "keywords": [
     "backend",
