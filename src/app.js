@@ -54,4 +54,6 @@ app.use("/api/pengamat", pengamatRouter);
 
 app.use(errorHandler);
 
-export default app;
+export default function createServer() {
+  return app;
+}
