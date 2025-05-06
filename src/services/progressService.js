@@ -52,8 +52,6 @@ export const deleteProgressByLanguageId = async (languageId) => {
     const workspaceIds = workspaces.map((workspace) => workspace._id);
 
     await UserProgress.deleteMany({ workspaceId: { $in: workspaceIds } });
-
-    console.log(`Deleted progress entries for languageId: ${languageId}`);
   } catch (error) {
     console.error("Error in deleteProgressByLanguageId:", error.message);
     throw new Error(error.message || "Gagal menghapus entri progress.");

@@ -31,8 +31,6 @@ authRouter.get(
 
       const { isProfileComplete } = req.user.user.isProfileComplete;
 
-      console.log("user", req.user.user);
-
       if (!isProfileComplete) {
         res.send(`
           <script>

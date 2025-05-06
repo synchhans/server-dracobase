@@ -74,8 +74,6 @@ export const deleteRecentByLanguageId = async (languageId) => {
     await Recent.deleteMany({ workspaceId: { $in: workspaceIds } });
 
     await Workspace.deleteMany({ _id: { $in: workspaceIds } });
-
-    console.log(`Deleted recent entries for languageId: ${languageId}`);
   } catch (error) {
     console.error("Error in deleteRecentByLanguageId:", error.message);
     throw new Error(error.message || "Gagal menghapus entri recent.");
