@@ -17,7 +17,7 @@ export const addLanguage = async (data) => {
 
 export const getAllLanguages = async () => {
   try {
-    const languages = await Language.find().sort({ createdAt: 1 });
+    const languages = await Language.find().sort({ createdAt: -1 });
     return languages;
   } catch (error) {
     throw new Error(error.message || "Gagal mengambil daftar bahasa.");
