@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
+import session from "express-session";
 import connectDB from "./config/db.js";
 import passport from "passport";
 
@@ -35,6 +36,19 @@ app.use(express.json());
 
 connectDB();
 
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "none",
+    },
+  })
+);
+
 app.use(passport.initialize());
 
 import "./config/passport.js";
@@ -54,6 +68,4 @@ app.use("/api/pengamat", pengamatRouter);
 
 app.use(errorHandler);
 
-export default function createServer() {
-  return app;
-}
+export default app;
