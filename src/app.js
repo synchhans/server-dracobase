@@ -17,6 +17,8 @@ import aiRouter from "./routes/aiRouter.js";
 import notificationRouter from "./routes/notificationRouter.js";
 import maintenanceRouter from "./routes/maintenanceRouter.js";
 import pengamatRouter from "./routes/pengamatRouter.js";
+import dosenRouter from "./routes/dosenRouter.js";
+
 
 import { errorHandler } from "./middlewares/errorHandler.js";
 
@@ -65,6 +67,7 @@ app.use("/api/ai", aiRouter);
 app.use("/api/notification", notificationRouter);
 app.use("/api/maintenance", maintenanceRouter);
 app.use("/api/pengamat", pengamatRouter);
+app.use("/api/dosen", dosenRouter);
 
 app.use(errorHandler);
 

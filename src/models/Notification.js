@@ -25,7 +25,7 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["system", "master"],
+      enum: ["system", "master", "dosen"],
       default: "system",
     },
   },

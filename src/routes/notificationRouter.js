@@ -5,7 +5,7 @@ import {
   patchMarkAsRead,
 } from "../controllers/notificationController.js";
 import isProfileCompleted from "../middlewares/isProfileCompleted.js";
-import isAdmin from "../middlewares/isAdmin.js";
+import canSendNotifications from "../middlewares/canSendNotifications.js";
 import passport from "passport";
 import setReqUserFromJwt from "../middlewares/setReqUserFromJwt.js";
 
@@ -15,7 +15,7 @@ notificationRouter.post(
   "/",
   passport.authenticate("jwt", { session: false }),
   setReqUserFromJwt,
-  isAdmin,
+  canSendNotifications,
   postNotification
 );
 notificationRouter.get(
