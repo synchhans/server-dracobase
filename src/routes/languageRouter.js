@@ -9,6 +9,7 @@ import isProfileCompleted from "../middlewares/isProfileCompleted.js";
 import isAdmin from "../middlewares/isAdmin.js";
 import passport from "passport";
 import setReqUserFromJwt from "../middlewares/setReqUserFromJwt.js";
+import isDosen from "../middlewares/isDosen.js";
 
 const languageRouter = express.Router();
 
@@ -34,7 +35,7 @@ languageRouter.put(
   passport.authenticate("jwt", { session: false }),
   setReqUserFromJwt,
   isProfileCompleted,
-  isAdmin,
+  isDosen,
   updateLanguageController
 );
 
