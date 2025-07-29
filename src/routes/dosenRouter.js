@@ -13,9 +13,9 @@ dosenRouter.get(
 
 dosenRouter.get(
   "/recent",
-//   passport.authenticate("jwt", { session: false }),
-//   setReqUserFromJwt,
-//   isDosen,
+  passport.authenticate("jwt", { session: false }),
+  setReqUserFromJwt,
+  isDosen,
   getRecentWorkspacesController
 );
 

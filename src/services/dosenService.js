@@ -16,15 +16,30 @@ export const searchWorkspacesByDosen = async (filters) => {
   }
 
   pipeline.push({
-    $lookup: { from: "users", localField: "userId", foreignField: "_id", as: "mahasiswa" },
+    $lookup: {
+      from: "users",
+      localField: "userId",
+      foreignField: "_id",
+      as: "mahasiswa",
+    },
   });
 
   pipeline.push({
-    $lookup: { from: "userprogresses", localField: "_id", foreignField: "workspaceId", as: "progress" },
+    $lookup: {
+      from: "userprogresses",
+      localField: "_id",
+      foreignField: "workspaceId",
+      as: "progress",
+    },
   });
 
   pipeline.push({
-    $lookup: { from: "languages", localField: "language", foreignField: "_id", as: "languageDetails" },
+    $lookup: {
+      from: "languages",
+      localField: "language",
+      foreignField: "_id",
+      as: "languageDetails",
+    },
   });
 
   pipeline.push({ $unwind: "$mahasiswa" });
@@ -38,15 +53,26 @@ export const searchWorkspacesByDosen = async (filters) => {
       mahasiswa: {
         _id: "$mahasiswa._id",
         displayName: "$mahasiswa.displayName",
-        email: "$mahasiswa.googleEmail" || "$mahasiswa.githubEmail" || "$mahasiswa.email",
-        picture: "$mahasiswa.googlePicture" || "$mahasiswa.githubPicture" || "$mahasiswa.picture",
+        email:
+          "$mahasiswa.googleEmail" ||
+          "$mahasiswa.githubEmail" ||
+          "$mahasiswa.email",
+        picture:
+          "$mahasiswa.googlePicture" ||
+          "$mahasiswa.githubPicture" ||
+          "$mahasiswa.picture",
       },
       progressPercentage: {
         $cond: {
           if: { $gt: [{ $size: "$languageDetails.materials" }, 0] },
           then: {
             $multiply: [
-              { $divide: [{ $size: "$progress.completedMaterialIndexes" }, { $size: "$languageDetails.materials" }] },
+              {
+                $divide: [
+                  { $size: "$progress.completedMaterialIndexes" },
+                  { $size: "$languageDetails.materials" },
+                ],
+              },
               100,
             ],
           },
@@ -76,7 +102,6 @@ export const searchWorkspacesByDosen = async (filters) => {
   }
 };
 
-
 export const getRecentWorkspaces = async (filters) => {
   const { search, minProgress, maxProgress, page = 1, limit = 10 } = filters;
   const skip = (page - 1) * limit;
@@ -84,10 +109,23 @@ export const getRecentWorkspaces = async (filters) => {
   const pipeline = [
     { $sort: { accessedAt: -1 } },
 
-    { $lookup: { from: "workspaces", localField: "workspaceId", foreignField: "_id", as: "workspaceDetails" } },
+    {
+      $lookup: {
+        from: "workspaces",
+        localField: "workspaceId",
+        foreignField: "_id",
+        as: "workspaceDetails",
+      },
+    },
     { $unwind: "$workspaceDetails" },
 
-    search ? { $match: { "workspaceDetails.name": { $regex: search, $options: "i" } } } : { $match: {} },
+    search
+      ? {
+          $match: {
+            "workspaceDetails.name": { $regex: search, $options: "i" },
+          },
+        }
+      : { $match: {} },
 
     {
       $group: {
@@ -99,17 +137,38 @@ export const getRecentWorkspaces = async (filters) => {
       },
     },
 
-    { $lookup: { from: "users", localField: "userId", foreignField: "_id", as: "mahasiswa" } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "mahasiswa",
+      },
+    },
 
-    { $lookup: { from: "userprogresses", localField: "_id", foreignField: "workspaceId", as: "progress" } },
+    {
+      $lookup: {
+        from: "userprogresses",
+        localField: "_id",
+        foreignField: "workspaceId",
+        as: "progress",
+      },
+    },
 
-    { $lookup: { from: "languages", localField: "languageId", foreignField: "_id", as: "languageDetails" } },
+    {
+      $lookup: {
+        from: "languages",
+        localField: "languageId",
+        foreignField: "_id",
+        as: "languageDetails",
+      },
+    },
 
     { $unwind: "$mahasiswa" },
     { $unwind: "$progress" },
     { $unwind: "$languageDetails" },
-    
-    { $match: { "mahasiswa.status": "active" } },
+
+    // { $match: { "mahasiswa.status": "active" } },
 
     {
       $addFields: {
@@ -118,7 +177,12 @@ export const getRecentWorkspaces = async (filters) => {
             if: { $gt: [{ $size: "$languageDetails.materials" }, 0] },
             then: {
               $multiply: [
-                { $divide: [{ $size: "$progress.completedMaterialIndexes" }, { $size: "$languageDetails.materials" }] },
+                {
+                  $divide: [
+                    { $size: "$progress.completedMaterialIndexes" },
+                    { $size: "$languageDetails.materials" },
+                  ],
+                },
                 100,
               ],
             },
@@ -131,8 +195,12 @@ export const getRecentWorkspaces = async (filters) => {
     {
       $match: {
         $and: [
-          minProgress ? { progressPercentage: { $gte: parseFloat(minProgress) } } : {},
-          maxProgress ? { progressPercentage: { $lte: parseFloat(maxProgress) } } : {},
+          minProgress
+            ? { progressPercentage: { $gte: parseFloat(minProgress) } }
+            : {},
+          maxProgress
+            ? { progressPercentage: { $lte: parseFloat(maxProgress) } }
+            : {},
         ],
       },
     },
@@ -152,8 +220,14 @@ export const getRecentWorkspaces = async (filters) => {
         mahasiswa: {
           _id: "$mahasiswa._id",
           displayName: "$mahasiswa.displayName",
-          email: "$mahasiswa.googleEmail" || "$mahasiswa.githubEmail" || "$mahasiswa.email",
-          picture: "$mahasiswa.googlePicture" || "$mahasiswa.githubPicture" || "$mahasiswa.picture",
+          email:
+            "$mahasiswa.googleEmail" ||
+            "$mahasiswa.githubEmail" ||
+            "$mahasiswa.email",
+          picture:
+            "$mahasiswa.googlePicture" ||
+            "$mahasiswa.githubPicture" ||
+            "$mahasiswa.picture",
         },
         progressPercentage: 1,
       },
@@ -164,12 +238,12 @@ export const getRecentWorkspaces = async (filters) => {
 
   try {
     const [totalResult, data] = await Promise.all([
-        Recent.aggregate(countPipeline).exec(),
-        Recent.aggregate(dataPipeline).exec()
+      Recent.aggregate(countPipeline).exec(),
+      Recent.aggregate(dataPipeline).exec(),
     ]);
 
     const total = totalResult.length > 0 ? totalResult[0].total : 0;
-    
+
     return {
       data,
       pagination: {
