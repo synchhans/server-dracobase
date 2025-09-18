@@ -36,6 +36,16 @@ export const buildQuery = (code, type) => {
       `;
   }
 
+  if (type === "chat") {
+    return `
+    Anda adalah AI coding assistant. Jawablah hanya terkait pembuatan website (HTML, CSS, JavaScript).
+    Tolak permintaan di luar itu.
+    
+    Pertanyaan:
+    ${code}
+  `;
+  }
+
   return `
       Analisis kode ini secara umum dan beri tanggapan singkat. 
       Pastikan respons Anda mencakup penjelasan yang jelas dan berguna.
